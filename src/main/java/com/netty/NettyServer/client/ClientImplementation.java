@@ -1,5 +1,6 @@
 package com.netty.NettyServer.client;
 
+import com.netty.NettyServer.client.In.InICoreHandler;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -18,6 +19,7 @@ public class ClientImplementation {
                         @Override
                         protected void initChannel(SocketChannel socketChannel) throws Exception {
                             ChannelPipeline pipeline = socketChannel.pipeline();
+                            pipeline.addLast(new InICoreHandler());
                         }
                     });
             ChannelFuture channelFuture = bootstrap.connect(ip, port).sync();
