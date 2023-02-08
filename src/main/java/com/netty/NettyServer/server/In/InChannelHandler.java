@@ -10,6 +10,11 @@ import java.util.regex.Pattern;
 
 
 public class InChannelHandler extends SimpleChannelInboundHandler {
+    @Override
+    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        ctx.writeAndFlush("hello client !!! ");
+    }
+
     private static final Pattern LOG_HEART_HEADER = new PatternBuilder()
             .text("[")
             .number("([0123]),")     //pkt_type   0- Login ,1- Heart Beat ,2- Read/write 3-FOTO
@@ -53,6 +58,12 @@ public class InChannelHandler extends SimpleChannelInboundHandler {
             .any()
             .compile();
     // record end
+    //Footer
+    private static final Pattern FOOTER_PATTERN=new PatternBuilder()
+            .text("*")
+            .number("(d+)")
+            .any()
+            .compile();
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Object msg) throws Exception {
         String str = (String) msg;
@@ -93,5 +104,11 @@ public class InChannelHandler extends SimpleChannelInboundHandler {
             System.out.println("Signal Strength - " + recordParser.nextInt());
             System.out.println("Network Status code - " + recordParser.nextInt());
         }
+
+       Parser footer_parser = new Parser(FOOTER_PATTERN, split[split.length - 1]);
+        if(footer_parser.matches()){
+          ctx.writeAndFlush("Okay");
+        }
+        System.out.println("CRC - "+footer_parser.nextInt());
     }
 }

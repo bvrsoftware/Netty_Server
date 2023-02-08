@@ -1,17 +1,16 @@
 package com.netty.NettyServer.server;
 
-import com.netty.NettyServer.server.In.InChannelHandler;
-import com.netty.NettyServer.server.In.MyFirstDecoder;
+import com.netty.NettyServer.server.In.MyDelimiterFrameDecoder;
+import com.netty.NettyServer.server.In.DeviceDataInHandler;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.handler.codec.DelimiterBasedFrameDecoder;
-import io.netty.handler.codec.string.StringDecoder;
+import io.netty.handler.codec.string.StringEncoder;
 
-import java.nio.charset.Charset;
+import javax.xml.bind.DatatypeConverter;
 
 public class MyServer {
     public void serverStart(int port) {
@@ -26,10 +25,15 @@ public class MyServer {
                         @Override
                         protected void initChannel(SocketChannel socketChannel) throws Exception {
                             ChannelPipeline pipeline = socketChannel.pipeline();
-                            pipeline.addFirst(new MyFirstDecoder());
+                            //  //ICore Protocol Implementation
+                            /*pipeline.addLast(new StringEncoder());
                             pipeline.addLast(new DelimiterBasedFrameDecoder(1024, Unpooled.wrappedBuffer(new byte[] {']'})));
                             pipeline.addLast(new StringDecoder(Charset.defaultCharset()));
-                            pipeline.addLast(new InChannelHandler());
+                            pipeline.addLast(new InChannelHandler());*/
+                            // DATA
+                            pipeline.addFirst(new MyDelimiterFrameDecoder(Unpooled.wrappedBuffer(DatatypeConverter.parseHexBinary("0C")),1,3));
+                            pipeline.addLast(new StringEncoder());
+                            pipeline.addLast(new DeviceDataInHandler());
                         }
                     }).childOption(ChannelOption.SO_KEEPALIVE,true);
             ChannelFuture channelFuture = serverBootstrap.bind(port).sync();
