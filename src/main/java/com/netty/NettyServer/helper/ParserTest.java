@@ -1,5 +1,10 @@
 package com.netty.NettyServer.helper;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufUtil;
+import io.netty.buffer.Unpooled;
+
+import javax.xml.bind.DatatypeConverter;
 import java.io.DataInputStream;
 import java.util.Arrays;
 import java.util.regex.Pattern;
@@ -49,6 +54,20 @@ public class ParserTest {
             .number("(d+)")             // Network Status code
             .any()
             .compile();
+    //0C12B2000101021711330001750BF6086304F064AA
+    private static final Pattern THINGLIVE_PATTERN = new PatternBuilder()
+            .text("0C")  // header
+            .number("(xx)")          //Packet Length
+            .number("(xx)")         //Response ID
+            .number("(x{4})")           //Response Number
+            .number("(xx),?(xx),?(xx),?(xx),?(xx),?(xx)") //Date and Time (ddmmyyhhmmss)
+            .number("(x{8})")                  //Latitude
+            .number("(x{8})")               //Longitude
+            .number("(xx)")                 //speed
+            .number("xx")                 //end footer
+
+            .any()
+            .compile();
 
     public void decode(String str) throws Exception {
         Parser parser = new Parser(RECORD, str);
@@ -83,13 +102,26 @@ public class ParserTest {
         System.out.println("Network Status code - " + parser.nextInt());
     }
 
+    public void decode(ByteBuf buf){
+        System.out.println("Message type : "+buf.readByte());
+        System.out.println("Packet identifier : "+buf.readByte());
+        System.out.println("Payload length : "+buf.readShort());
+        System.out.println("Record count : "+buf.readByte());
+        System.out.println("Record timestamp : "+buf.readInt());
+        System.out.println("GPS Location : "+buf.readByte());
+        System.out.println("Location : "+Arrays.asList((double)buf.readInt()/(30000*60),(double)buf.readInt()/(30000*60)));
+        System.out.println("Speed : "+buf.readUnsignedShort());
+        System.out.println("Directon : "+buf.readUnsignedShort());
+        System.out.println("CRC : "+buf.readUnsignedShort());
+    }
     public static void main(String[] args) throws Exception {
         DataInputStream dataInputStream = new DataInputStream(System.in);
         ParserTest parserTest = new ParserTest();
-        while (true){
+        while (true) {
             System.out.println("Enter Packet : ");
             String str = dataInputStream.readLine();
-            parserTest.decode(str);
+            ByteBuf buf = Unpooled.wrappedBuffer(DatatypeConverter.parseHexBinary(str));
+            parserTest.decode(buf);
         }
     }
 }

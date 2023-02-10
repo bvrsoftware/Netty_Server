@@ -5,7 +5,7 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 
 import java.io.DataInputStream;
 
-public class DeviceDataInHandler extends ChannelInboundHandlerAdapter{
+public class InThingLiveProtocol extends ChannelInboundHandlerAdapter{
     private DataInputStream in=null;
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
@@ -17,8 +17,10 @@ public class DeviceDataInHandler extends ChannelInboundHandlerAdapter{
     }
     @Override
     public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
-        System.out.println("Enter Packet :");
-        String str = in.readLine();
-        ctx.writeAndFlush(str);
+        while (true) {
+            System.out.println("Enter Packet :");
+            String str = in.readLine();
+            ctx.writeAndFlush(str);
+        }
     }
 }

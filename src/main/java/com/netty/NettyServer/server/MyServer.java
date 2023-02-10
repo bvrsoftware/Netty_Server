@@ -1,16 +1,13 @@
 package com.netty.NettyServer.server;
 
-import com.netty.NettyServer.server.In.MyDelimiterFrameDecoder;
-import com.netty.NettyServer.server.In.DeviceDataInHandler;
+import com.netty.NettyServer.server.In.InThingsLiveFrameDecoder;
+import com.netty.NettyServer.server.In.InThingsLiveProtocol;
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.string.StringEncoder;
-
-import javax.xml.bind.DatatypeConverter;
 
 public class MyServer {
     public void serverStart(int port) {
@@ -31,9 +28,9 @@ public class MyServer {
                             pipeline.addLast(new StringDecoder(Charset.defaultCharset()));
                             pipeline.addLast(new InChannelHandler());*/
                             // DATA
-                            pipeline.addFirst(new MyDelimiterFrameDecoder(Unpooled.wrappedBuffer(DatatypeConverter.parseHexBinary("0C")),1,3));
+                            pipeline.addFirst(new InThingsLiveFrameDecoder());
                             pipeline.addLast(new StringEncoder());
-                            pipeline.addLast(new DeviceDataInHandler());
+                            pipeline.addLast(new InThingsLiveProtocol());
                         }
                     }).childOption(ChannelOption.SO_KEEPALIVE,true);
             ChannelFuture channelFuture = serverBootstrap.bind(port).sync();

@@ -6,7 +6,7 @@ import io.netty.handler.codec.MessageToByteEncoder;
 
 import javax.xml.bind.DatatypeConverter;
 
-public class DeviceDataEncoder extends MessageToByteEncoder {
+public class ThingLiveProtoColEncoder extends MessageToByteEncoder {
     @Override
     protected void encode(ChannelHandlerContext ctx, Object msg, ByteBuf out) throws Exception {
         String str = (String) msg;

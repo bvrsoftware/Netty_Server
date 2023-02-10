@@ -1,14 +1,13 @@
 package com.netty.NettyServer.client;
 
-import com.netty.NettyServer.client.In.DeviceDataInHandler;
-import com.netty.NettyServer.client.out.DeviceDataEncoder;
+import com.netty.NettyServer.client.In.InThingLiveProtocol;
+import com.netty.NettyServer.client.out.ThingLiveProtoColEncoder;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.string.StringDecoder;
-import io.netty.handler.codec.string.StringEncoder;
 
 public class ClientImplementation {
     public  void connectInitializer(String ip,int port){
@@ -27,8 +26,8 @@ public class ClientImplementation {
 //                            pipeline.addLast(new InICoreHandler());
                             //Device Data Format Protocol !!!
                             pipeline.addLast(new StringDecoder());
-                            pipeline.addLast(new DeviceDataEncoder());
-                            pipeline.addLast(new DeviceDataInHandler());
+                            pipeline.addLast(new ThingLiveProtoColEncoder());
+                            pipeline.addLast(new InThingLiveProtocol());
                         }
                     });
             ChannelFuture channelFuture = bootstrap.connect(ip, port).sync();
